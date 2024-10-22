@@ -92,15 +92,29 @@ export const login = async (req, res) => {
             profile: user.profile
         }
 
-        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpsOnly: true, sameSite: 'strict' }).json({
+        // return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpsOnly: true, sameSite: 'strict' }).json({
+        //     message: `Welcome back ${user.fullname}`,
+        //     user,
+        //     success: true
+        // })
+
+        return res.status(200).cookie("token", token, { 
+            maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day in milliseconds
+            httpOnly: true, // Prevent client-side access to the token
+            secure: process.env.NODE_ENV === 'production', // Ensure it's secure in production
+            sameSite: 'strict' // To prevent CSRF attacks
+        }).json({
             message: `Welcome back ${user.fullname}`,
             user,
             success: true
-        })
+        });
+        
     } catch (error) {
         console.log(error);
     }
 }
+
+
 export const logout = async (req, res) => {
     try {
         return res.status(200).cookie("token", "", { maxAge: 0 }).json({
@@ -111,6 +125,9 @@ export const logout = async (req, res) => {
         console.log(error);
     }
 }
+
+
+
 export const updateProfile = async (req, res) => {
     try {
         const { fullname, email, phoneNumber, bio, skills } = req.body;

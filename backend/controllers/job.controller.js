@@ -60,6 +60,29 @@ export const getAllJobs = async (req, res) => {
         console.log(error);
     }
 }
+
+// export const getAllJobs = async (req, res) => {
+//     try {
+//       const jobs = await Job.find(); // Assuming Job is your model
+//       if (!jobs.length) {
+//         return res.status(404).json({
+//           message: "No jobs found",
+//           success: false,
+//         });
+//       }
+//       return res.status(200).json({
+//         jobs,
+//         success: true,
+//       });
+//     } catch (error) {
+//       console.error("Error fetching jobs:", error);
+//       return res.status(500).json({
+//         message: "Internal server error",
+//         success: false,
+//       });
+//     }
+//   };
+  
 // student
 export const getJobById = async (req, res) => {
     try {
