@@ -1,7 +1,6 @@
-// import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 // const isAuthenticated = async (req, res, next) => {
-
 
 //     try {
 //         const token = req.cookies.token;
@@ -25,7 +24,6 @@
 //     }
 // }
 // export default isAuthenticated;
-
 
 // const isAuthenticated = async (req, res, next) => {
 //     try {
@@ -62,29 +60,27 @@
 
 // export default isAuthenticated;
 
-
-
 // const isAuthenticated = async (req, res, next) => {
 //     try {
 //       const authHeader = req.headers.authorization;
-  
+
 //       if (!authHeader || !authHeader.startsWith("Bearer ")) {
 //         return res.status(401).json({
 //           message: "User not authenticated",
 //           success: false,
 //         });
 //       }
-  
+
 //       const token = authHeader.split(" ")[1]; // Extract the token from "Bearer <token>"
 //       const decode = await jwt.verify(token, process.env.SECRET_KEY);
-  
+
 //       if (!decode) {
 //         return res.status(401).json({
 //           message: "Invalid token",
 //           success: false,
 //         });
 //       }
-  
+
 //       req.id = decode.userId;
 //       next();
 //     } catch (error) {
@@ -95,13 +91,10 @@
 //       });
 //     }
 //   };
-  
 
 //   export default isAuthenticated;
-  
 
-
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
 
 // const isAuthenticated = async (req, res, next) => {
 //   try {
@@ -116,7 +109,7 @@ import jwt from "jsonwebtoken";
 
 //     // Verify the token
 //     const decode = jwt.verify(token, process.env.SECRET_KEY);
-    
+
 //     // If token verification fails
 //     if (!decode) {
 //       return res.status(401).json({
@@ -143,33 +136,35 @@ const isAuthenticated = async (req, res, next) => {
   console.log("Cookies received:", req.cookies); // Log received cookies
 
   try {
-      const token = req.cookies.token;
-      if (!token) {
-          return res.status(401).json({
-              message: "User not authenticated",
-              success: false,
-          });
-      }
-
-      const decode = jwt.verify(token, process.env.SECRET_KEY);
-      if (!decode) {
-          return res.status(401).json({
-              message: "Invalid token",
-              success: false,
-          });
-      }
-
-      req.id = decode.userId;
-      req.user = token;
-      next();
-  } catch (error) {
-      console.error("Authentication error:", error);
+    const token =
+      req.cookies.token ||
+      req.body.token ||
+      req.header("Authorization").replace("Bearer ", "");
+    if (!token) {
       return res.status(401).json({
-          message: "Token verification failed. Please log in again.",
-          success: false,
+        message: "User not authenticated",
+        success: false,
       });
+    }
+
+    const decode = jwt.verify(token, process.env.SECRET_KEY);
+    if (!decode) {
+      return res.status(401).json({
+        message: "Invalid token",
+        success: false,
+      });
+    }
+
+    req.id = decode.userId;
+    req.user = token;
+    next();
+  } catch (error) {
+    console.error("Authentication error:", error);
+    return res.status(401).json({
+      message: "Token verification failed. Please log in again.",
+      success: false,
+    });
   }
 };
-
 
 export default isAuthenticated;
