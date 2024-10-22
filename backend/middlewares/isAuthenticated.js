@@ -127,7 +127,7 @@ const isAuthenticated = async (req, res, next) => {
 
     // Attach user information (userId in this case) to the request object
     req.id = decode.userId;
-
+    req.user =token ;
     // Proceed to the next middleware or route handler
     next();
   } catch (error) {

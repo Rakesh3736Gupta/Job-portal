@@ -98,10 +98,43 @@ const useGetAllJobs = () => {
   const dispatch = useDispatch();
   const { searchedQuery } = useSelector((store) => store.job);
 
+  // useEffect(() => {
+  //   const fetchAllJobs = async () => {
+  //     try {
+  //       const token = localStorage.getItem("authToken"); // Retrieve the token
+
+  //       const res = await axios.get(
+  //         `${JOB_API_END_POINT}/get?keyword=${searchedQuery}`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`, // Add the token to the headers
+  //           },
+  //           withCredentials: true,
+  //         }
+  //       );
+
+  //       if (res.data.success) {
+  //         dispatch(setAllJobs(res.data.jobs));
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching jobs:", error); // Log the error for debugging
+  //     }
+  //   };
+
+  //   if (searchedQuery) {
+  //     // Ensure fetch is called only if there's a query
+  //     fetchAllJobs();
+  //   }
+  // }, [searchedQuery, dispatch]); // Add dependencies
   useEffect(() => {
     const fetchAllJobs = async () => {
       try {
-        const token = localStorage.getItem("authToken"); // Retrieve the token
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          throw new Error("Authentication token is missing");
+        }
+
+        console.log("Fetching jobs with token:", token);
 
         const res = await axios.get(
           `${JOB_API_END_POINT}/get?keyword=${searchedQuery}`,
@@ -115,17 +148,21 @@ const useGetAllJobs = () => {
 
         if (res.data.success) {
           dispatch(setAllJobs(res.data.jobs));
+        } else {
+          console.error("Failed to fetch jobs, response:", res.data);
         }
       } catch (error) {
-        console.error("Error fetching jobs:", error); // Log the error for debugging
+        console.error("Error fetching jobs:", error);
+        if (error.response && error.response.status === 401) {
+          console.error("Unauthorized: Check if token is valid or expired.");
+        }
       }
     };
 
     if (searchedQuery) {
-      // Ensure fetch is called only if there's a query
       fetchAllJobs();
     }
-  }, [searchedQuery, dispatch]); // Add dependencies
+  }, [searchedQuery, dispatch]);
 };
 
 export default useGetAllJobs;
