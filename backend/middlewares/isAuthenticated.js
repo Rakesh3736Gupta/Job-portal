@@ -103,40 +103,73 @@
 
 import jwt from "jsonwebtoken";
 
-const isAuthenticated = async (req, res, next) => {
-  try {
-    // Check if the token exists in cookies
-    const token = req.cookies.token;
-    if (!token) {
-      return res.status(401).json({
-        message: "User not authenticated",
-        success: false,
-      });
-    }
+// const isAuthenticated = async (req, res, next) => {
+//   try {
+//     // Check if the token exists in cookies
+//     const token = req.cookies.token;
+//     if (!token) {
+//       return res.status(401).json({
+//         message: "User not authenticated",
+//         success: false,
+//       });
+//     }
 
-    // Verify the token
-    const decode = jwt.verify(token, process.env.SECRET_KEY);
+//     // Verify the token
+//     const decode = jwt.verify(token, process.env.SECRET_KEY);
     
-    // If token verification fails
-    if (!decode) {
-      return res.status(401).json({
-        message: "Invalid token",
-        success: false,
-      });
-    }
+//     // If token verification fails
+//     if (!decode) {
+//       return res.status(401).json({
+//         message: "Invalid token",
+//         success: false,
+//       });
+//     }
 
-    // Attach user information (userId in this case) to the request object
-    req.id = decode.userId;
-    req.user =token ;
-    // Proceed to the next middleware or route handler
-    next();
+//     // Attach user information (userId in this case) to the request object
+//     req.id = decode.userId;
+//     req.user =token ;
+//     // Proceed to the next middleware or route handler
+//     next();
+//   } catch (error) {
+//     console.error("Authentication error:", error);
+//     return res.status(401).json({
+//       message: "Token verification failed. Please log in again.",
+//       success: false,
+//     });
+//   }
+// };
+
+const isAuthenticated = async (req, res, next) => {
+  console.log("Cookies received:", req.cookies); // Log received cookies
+
+  try {
+      const token = req.cookies.token;
+      if (!token) {
+          return res.status(401).json({
+              message: "User not authenticated",
+              success: false,
+          });
+      }
+
+      const decode = jwt.verify(token, process.env.SECRET_KEY);
+      if (!decode) {
+          return res.status(401).json({
+              message: "Invalid token",
+              success: false,
+          });
+      }
+
+      req.id = decode.userId;
+      req.user = token;
+      next();
   } catch (error) {
-    console.error("Authentication error:", error);
-    return res.status(401).json({
-      message: "Token verification failed. Please log in again.",
-      success: false,
-    });
+      console.error("Authentication error:", error);
+      return res.status(401).json({
+          message: "Token verification failed. Please log in again.",
+          success: false,
+      });
   }
 };
+
 
 export default isAuthenticated;
